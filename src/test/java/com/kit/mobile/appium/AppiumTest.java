@@ -15,6 +15,12 @@ import com.kit.mobile.appium.util.Constant;
 
 import io.appium.java_client.android.AndroidDriver;
 
+/**
+ * A sample of MultiAppium test tool
+ * @author kit.yeung
+ *
+ */
+
 @RunWith(MultiThreadRunner.class)
 public class AppiumTest {
 	
