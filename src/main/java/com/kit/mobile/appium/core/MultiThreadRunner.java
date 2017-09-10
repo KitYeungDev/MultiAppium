@@ -10,16 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
-import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.kit.mobile.appium.util.Constant;
 
-public class MultiThreadRunner extends Runner{
+public class MultiThreadRunner extends Runner {
 
 	private Class<?>     testClass;
     private Object       testClassInstance;
@@ -68,18 +70,49 @@ public class MultiThreadRunner extends Runner{
 			// Appium Config checking
 			AppiumConfig appiumConfig = testMethod.getAnnotation(AppiumConfig.class);
 			if (appiumConfig != null) {
-				String[] readCapabilities = appiumConfig.readCapabilities();
+				String[] readCapabilities = appiumConfig.readCapabilitiesByDevice();
 				if (readCapabilities.length <= 0) {
 					throw new IllegalArgumentException("Capabilites List Can't be Null !");
 				}
 			}
 			
 			try {
-				String[] readCapabilities = appiumConfig.readCapabilities();
+				String[] readCapabilities = appiumConfig.readCapabilitiesByDevice();
+				readCapabilities = reorganizeFileName(readCapabilities);
+				for (int i = 0; i < readCapabilities.length; i++) {
+					System.out.println("Device " + i + " : " + readCapabilities[i]);
+				}
 				List<Map<String, Object>> propList = getPropertiesMap(readCapabilities);
 				
+				// if threadNum > 1, use multi thread, else use main thread
+				System.out.println("Thread Number : " + propList.size());
+		        ExecutorService executorService = null;
+		        if (propList.size() > 1) {
+		            executorService = Executors.newFixedThreadPool(propList.size());
+		        }
+				
 				for (Map<String, Object> capabilities : propList) {
-					invokeWithTestCase(testMethod, notifier, capabilities);
+					if (executorService != null) {
+						System.out.println("run executorService device is : " + capabilities.get("deviceName"));
+		                executorService.execute(new TestCaseJob(testMethod, capabilities, notifier));
+		            } else {
+		            	System.out.println("run executorService device is : " + capabilities.get("deviceName"));
+		            	invokeWithTestCase(testMethod, capabilities, notifier);
+		            }
+				}
+				
+				if (executorService != null) {
+					executorService.shutdown();
+
+			        while (true) {
+			            try {
+			                if (executorService.awaitTermination(5, TimeUnit.MINUTES)) {
+			                    break;
+			                }
+			            } catch (InterruptedException e) {
+			                e.printStackTrace();
+			            }
+			        }
 				}
 				
 			} catch (Exception e) {
@@ -89,15 +122,19 @@ public class MultiThreadRunner extends Runner{
 		System.out.println("End run() .");
 	}
 
-	private void invokeWithTestCase(Method testMethod, RunNotifier notifier, Map<String, Object> capabilities) {
+	private void invokeWithTestCase(Method testMethod, Map<String, Object> capabilities, RunNotifier notifier) {
 
 		notifier.fireTestStarted(description);
-		
-		try {
-			testMethod.invoke(testClassInstance, capabilities);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		do {
+			try {
+				testMethod.invoke(testClassInstance, capabilities);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			break;
+			
+		} while(true);
 		
 		notifier.fireTestFinished(description);
 	}
@@ -124,26 +161,34 @@ public class MultiThreadRunner extends Runner{
 		
 		return propList;
 	}
+	
+	private String[] reorganizeFileName(String[] readCapabilities) {
+		for (int i = 0; i < readCapabilities.length; i++) {
+			readCapabilities[i] = Constant.DEVICE_FILE_PREFIX + readCapabilities[i] + Constant.DEVICE_FILE_SUFFIX;
+		}
+		return readCapabilities;
+	}
+	
+	private class TestCaseJob implements Runnable {
 
-	private List<DesiredCapabilities> initCapabilities(List<Map<String, String>> propList) {
-		List<DesiredCapabilities> capabilities = new ArrayList<DesiredCapabilities>();
+		private Map<String, Object> capabilities;
+        private Method              methodToInvoke;
+        private RunNotifier         runNotifier;
 		
-		try {
-			for (Map<String, String> map : propList) {
-				DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
-				desiredCapabilities.setCapability("deviceName", (String) map.get("deviceName"));
-				desiredCapabilities.setCapability("platformVersion", (String) map.get("platformVersion"));
-				desiredCapabilities.setCapability("udid", (String) map.get("udid"));
-				desiredCapabilities.setCapability("unicodeKeyboard", (String) map.get("unicodeKeyboard"));
-				desiredCapabilities.setCapability("resetKeyboard", (String) map.get("resetKeyboard"));
-				desiredCapabilities.setCapability("app", Constant.APK_ROOT_PATH + (String) map.get("app"));
-				
-				capabilities.add(desiredCapabilities);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+        public TestCaseJob(Method methodToInvoke, Map<String, Object> capabilities, RunNotifier runNotifier) {
+            this.capabilities = capabilities;
+            this.methodToInvoke = methodToInvoke;
+            this.runNotifier = runNotifier;
+        }
+
+        @Override
+		public void run() {
+			try {
+                invokeWithTestCase(methodToInvoke, capabilities, runNotifier);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 		}
 		
-		return capabilities;
 	}
 }

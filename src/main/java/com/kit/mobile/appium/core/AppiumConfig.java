@@ -12,5 +12,5 @@ public @interface AppiumConfig {
 	 * read capabilties from resource properties
 	 * @return
 	 */
-	String[] readCapabilities() default {};
+	String[] readCapabilitiesByDevice() default {};
 }

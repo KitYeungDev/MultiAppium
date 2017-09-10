@@ -2,7 +2,6 @@ package com.kit.mobile.appium;
 
 import java.net.URL;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
@@ -20,7 +19,7 @@ import io.appium.java_client.android.AndroidDriver;
 public class AppiumTest {
 	
 	@Test
-	@AppiumConfig(readCapabilities = {"device_s4.properties"})
+	@AppiumConfig(readCapabilitiesByDevice = {"GT-I9508V", "Nexus-5X"})
 	public void testAppium(Map<String, Object> capabilities) {
 		try {
 			AndroidDriver<WebElement> driver1;
@@ -31,7 +30,10 @@ public class AppiumTest {
 			capabilities1.setCapability("unicodeKeyboard", (String) capabilities.get("unicodeKeyboard"));
 			capabilities1.setCapability("resetKeyboard", (String) capabilities.get("resetKeyboard"));
 			capabilities1.setCapability("app", Constant.APK_ROOT_PATH + (String) capabilities.get("app"));
-			driver1 = new AndroidDriver<WebElement>(new URL("http://127.0.0.1:"+(String)capabilities.get("portNo")+"/wd/hub"), capabilities1);
+			driver1 = new AndroidDriver<WebElement>(
+					new URL(Constant.SERVER_REQUEST_URL
+							.replace(Constant.PORT_NO, (String) capabilities.get("portNo"))), 
+					capabilities1);
 			driver1.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
 		} catch (Exception e) {
 			e.printStackTrace();
