@@ -4,27 +4,20 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.regex.Pattern;
 
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import com.kit.mobile.appium.util.Constant;
-
-import io.appium.java_client.AppiumDriver;
-import io.appium.java_client.android.AndroidDriver;
 
 public class MultiThreadRunner extends Runner{
 
@@ -35,15 +28,22 @@ public class MultiThreadRunner extends Runner{
     
     public MultiThreadRunner(Class<?> testClass) 
     		throws InstantiationException, IllegalAccessException{
+    	
+    	System.out.println("Start MultiThread Runner Constructor.");
+    	
     	this.testClass = testClass;
         testClassInstance = testClass.newInstance();
         description = Description.createTestDescription(testClass,
                 testClass.getSimpleName());
 
+        System.out.println("End MultiThread Runner Constructor.");
+        
         initTestMethods();
 	}
 	
 	private void initTestMethods() {
+		System.out.println("Start initTestMethods() .");
+		
 		Method[] methods = testClass.getMethods();
         for (Method method : methods) {
             if (method.isAnnotationPresent(Test.class)
@@ -51,6 +51,8 @@ public class MultiThreadRunner extends Runner{
                 testMethods.add(method);
             }
         }
+        
+        System.out.println("End initTestMethods() .");
 	}
 
 	@Override
@@ -60,8 +62,9 @@ public class MultiThreadRunner extends Runner{
 
 	@Override
 	public void run(RunNotifier notifier) {
+		System.out.println("Start run() .");
 		for (Method testMethod : testMethods) {
-			
+			System.out.println("Start function : " + testMethod.getName() + " .");
 			// Appium Config checking
 			AppiumConfig appiumConfig = testMethod.getAnnotation(AppiumConfig.class);
 			if (appiumConfig != null) {
@@ -69,26 +72,38 @@ public class MultiThreadRunner extends Runner{
 				if (readCapabilities.length <= 0) {
 					throw new IllegalArgumentException("Capabilites List Can't be Null !");
 				}
-				
-				String apkPath = appiumConfig.apkPath();
-				if (apkPath.equals("")) {
-					throw new IllegalArgumentException("apkPath field Can't be Null !");
-				}
 			}
 			
 			try {
 				String[] readCapabilities = appiumConfig.readCapabilities();
-				String apkPath = appiumConfig.apkPath();
-				List<Map<String, String>> propList = getPropertiesMap(readCapabilities);
-				List<DesiredCapabilities> capabilities = initCapabilities(propList);
+				List<Map<String, Object>> propList = getPropertiesMap(readCapabilities);
+				
+				for (Map<String, Object> capabilities : propList) {
+					invokeWithTestCase(testMethod, notifier, capabilities);
+				}
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("End run() .");
 	}
 
-	private List<Map<String, String>> getPropertiesMap(String[] readCapabilities) {
-		List<Map<String, String>> propList = new ArrayList<Map<String,String>>();
+	private void invokeWithTestCase(Method testMethod, RunNotifier notifier, Map<String, Object> capabilities) {
+
+		notifier.fireTestStarted(description);
+		
+		try {
+			testMethod.invoke(testClassInstance, capabilities);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		notifier.fireTestFinished(description);
+	}
+
+	private List<Map<String, Object>> getPropertiesMap(String[] readCapabilities) {
+		List<Map<String, Object>> propList = new ArrayList<Map<String,Object>>();
 		try {
 			for (int i = 0; i < readCapabilities.length; i++) {
 				String propertiesName = readCapabilities[i];
@@ -97,11 +112,11 @@ public class MultiThreadRunner extends Runner{
 				Properties prop = new Properties(); 
 				prop.load(inStream);
 				
+				Map<String, Object> map = new HashMap<String, Object>();
 				for (Entry<Object, Object> entry : prop.entrySet()) {
-					Map<String, String> map = new HashMap<String, String>();
-					map.put((String) entry.getKey(), (String) entry.getValue());
-					propList.add(map);
+					map.put((String) entry.getKey(), entry.getValue());
 				}
+				propList.add(map);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

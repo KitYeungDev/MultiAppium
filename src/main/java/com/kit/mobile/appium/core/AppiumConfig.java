@@ -13,5 +13,4 @@ public @interface AppiumConfig {
 	 * @return
 	 */
 	String[] readCapabilities() default {};
-	String apkPath() default "";
 }
