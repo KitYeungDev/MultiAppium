@@ -34,7 +34,7 @@ public class AppiumTest {
 }
 ```
 **2. Create a new properties for `DesiredCapabilities`**
-> file naming rules : device_`mobile_model`.properties
+> file naming rules : device_`devicename`.properties [e.g : device_GT-I9508V.properties]
 
 ```
 deviceName=GT-I9508V
