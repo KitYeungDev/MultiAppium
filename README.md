@@ -11,7 +11,7 @@ An Java Test Tool for mobile auto test with Multi-Thread .
 
 
 # How to Use
-1. Create A new Test Class & add customized junit runner for multi-thread .
+*1. Create A new Test Class & add customized junit runner for multi-thread .*
 ```java
 @RunWith(MultiThreadRunner.class)
 public class AppiumTest {
