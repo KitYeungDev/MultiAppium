@@ -21,4 +21,8 @@ public class Constant {
 															"resource/device/android/";
 	
 	public static final String SERVER_REQUEST_URL		=	"http://192.168.0.103:"+PORT_NO+"/wd/hub";
+	
+	public enum AppType {
+		APP, BROWSER
+	}
 }
