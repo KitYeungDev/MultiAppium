@@ -11,7 +11,7 @@ An Java Test Tool for mobile auto test with Multi-Thread .
 
 
 # How to Use
-*1. Create A new Test Class & add customized junit runner for multi-thread .*
+**1. Create A new Test Class & add customized junit runner for multi-thread .**
 ```java
 @RunWith(MultiThreadRunner.class)
 public class AppiumTest {
@@ -33,7 +33,7 @@ public class AppiumTest {
 	}
 }
 ```
-2. Create a new properties for `DesiredCapabilities`
+**2. Create a new properties for `DesiredCapabilities`**
 > file naming rules : device_`mobile_model`.properties
 
 ```
@@ -47,11 +47,11 @@ waitTime=10
 app=app-debug.apk
 ```
 
-3. Copy your test apk file into `app` folder 
+**3. Copy your test apk file into `app` folder**
 
-4. Start Multi Appium Service by different udid
+**4. Start Multi Appium Service by different udid**
 > Command for checking device's udid : `adb devices -l`
 > Command for start appium service : `appium -p 4723 -bp 2000 -U [udid]`
 
-5. Run Junit Test 
+**5. Run Junit Test**
 
