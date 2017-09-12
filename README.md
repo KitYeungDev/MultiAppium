@@ -50,7 +50,7 @@ app=app-debug.apk
 **3. Copy your test apk file into `app` folder**
 
 **4. Start Multi Appium Service by different udid**
-> Command for checking device's udid : `adb devices -l`
+> Command for checking device's udid : `adb devices -l`<br>
 > Command for start appium service : `appium -p 4723 -bp 2000 -U [udid]`
 
 **5. Run Junit Test**
