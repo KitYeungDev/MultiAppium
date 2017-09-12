@@ -34,6 +34,7 @@ public class AppiumTest {
 }
 ```
 **2. Create a new properties for `DesiredCapabilities`**
+> file path : `/projectroot/resource/device/android/`<br>
 > file naming rules : device_`devicename`.properties [e.g : device_GT-I9508V.properties]
 
 ```
