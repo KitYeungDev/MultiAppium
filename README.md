@@ -23,10 +23,10 @@ public class AppiumTest {
 		try {
 			//Init a new AppiumDriver
 			Driver driver = new MyAndroidDriver(capabilities);
-			//Create A mobile web app test request 
-			driver.create(AppType.BROWSER);
-			//Open web app page 
-			Driver.getDriver().get("http://www.baidu.com");
+			//Create A mobile app test request 
+			driver.create(AppType.APP);
+			//Your Test logic
+			//... ...
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
