@@ -22,7 +22,7 @@ public class AppiumTest {
 	
 	@Test
 	//input devices name
-	@AppiumConfig(readCapabilitiesByDevice = {"GT-I9508V", "Nexus-5X"})
+	@AppiumConfig(readCapabilitiesByDevice = {"GT-I9508V"})
 	public void testAppium(Map<String, Object> capabilities) {
 		try {
 			//Init a new AppiumDriver
