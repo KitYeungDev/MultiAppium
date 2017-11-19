@@ -182,7 +182,7 @@ public class MultiThreadRunner extends Runner {
         }
 
         @Override
-		public void run() {
+		public void run() { 
 			try {
                 invokeWithTestCase(methodToInvoke, capabilities, runNotifier);
             } catch (Exception e) {
