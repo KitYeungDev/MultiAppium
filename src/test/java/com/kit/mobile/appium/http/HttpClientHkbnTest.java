@@ -8,9 +8,4 @@ public class HttpClientHkbnTest {
 	public void testHttpClientHkbn() {
 		HttpClientHkbn.hkbnHttpGet("http://192.168.0.105:8081/rest/qmetry/latest/teststep?testCaseIssueId=10200");
 	}
-	
-	@Test
-	public void testOkHttpClientHkbn() {
-		HttpClientHkbn.OkHttpGet();
-	}
 }
