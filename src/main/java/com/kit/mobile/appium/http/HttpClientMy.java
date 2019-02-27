@@ -10,13 +10,13 @@ import org.apache.http.impl.client.HttpClients;
 
 import sun.misc.BASE64Encoder;
 
-public class HttpClientHkbn {
+public class HttpClientMy {
 
 	private static final String USERNAME = "kit.yeung";
 	private static final String PASSWORD = "ManJay666";
 	private static final String enc = USERNAME + ":" + PASSWORD;
 	
-	public static String hkbnHttpGet(String url) {
+	public static String myHttpGet(String url) {
 		
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		HttpGet httpGet = new HttpGet(url);
