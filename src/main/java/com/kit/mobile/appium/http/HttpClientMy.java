@@ -13,7 +13,7 @@ import sun.misc.BASE64Encoder;
 public class HttpClientMy {
 
 	private static final String USERNAME = "kit.yeung";
-	private static final String PASSWORD = "ManJay666";
+	private static final String PASSWORD = "kit.yeung";
 	private static final String enc = USERNAME + ":" + PASSWORD;
 	
 	public static String myHttpGet(String url) {
